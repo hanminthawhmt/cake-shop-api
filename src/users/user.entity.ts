@@ -33,6 +33,9 @@ export class User {
   @Column({ nullable: true })
   password: string;
 
+  @Column({ type: 'enum', enum: Role, default: Role.CUSTOMER })
+  role: Role;
+
   @Column({ type: 'enum', enum: AuthProvider, default: AuthProvider.LOCAL })
   authProvider: AuthProvider;
 

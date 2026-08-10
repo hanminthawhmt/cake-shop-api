@@ -3,25 +3,27 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { LogInUserDto } from './dtos/login-user.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
-import { AuthGuard } from '@nestjs/passport';
+//import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { User } from './user.entity';
+import { Public } from './decorators/public.decorators';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Public()
   @Post('signup')
   createUser(@Body() body: CreateUserDto) {
     return this.authService.signup(body.name, body.email, body.password);
   }
 
+  @Public()
   @Post('signin')
   signin(@Body() body: LogInUserDto) {
     return this.authService.signin(body.email, body.password);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  //@UseGuards(AuthGuard('jwt'))
   @Patch('change-password')
   changePassword(
     @CurrentUser() user: { userId: number },

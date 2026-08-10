@@ -23,7 +23,7 @@ export class AuthService {
     const hashedPassword = await hash(password, 10);
     const user = await this.usersService.create(name, email, hashedPassword);
 
-    const payload = { userId: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
     const token = this.jwtService.sign(payload);
     return {
       message: 'User registered successfully',
@@ -45,7 +45,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const payload = { userId: user.id, email: user.email };
+    const payload = { sub: user.id, email: user.email, role: user.role };
     const token = this.jwtService.sign(payload);
     return {
       message: 'Log in successful',
@@ -71,7 +71,7 @@ export class AuthService {
     }
 
     const hashedNewPassword = await hash(newPassword, 10);
-    
+
     await this.usersService.updatePassword(user.id, {
       password: hashedNewPassword,
     });
