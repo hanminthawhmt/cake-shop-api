@@ -9,6 +9,7 @@ import { PassportModule } from '@nestjs/passport';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './users/guards/jwt-auth.guard';
 import { RolesGuard } from './users/guards/roles.guard';
+import { CakesModule } from './cakes/cakes.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { RolesGuard } from './users/guards/roles.guard';
       },
     }),
     UsersModule,
+    CakesModule,
   ],
   controllers: [AppController],
   providers: [
