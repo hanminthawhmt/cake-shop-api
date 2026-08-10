@@ -10,6 +10,11 @@ export class RolesGuard implements CanActivate {
       ROLES_KEY,
       [context.getHandler(), context.getClass()],
     );
+    
+    /*
+    extract the roles from the Roles decorator
+     */
+
     if (!requiredRoles) {
       return true; // no @Roles() on this route, don't restrict
     }
