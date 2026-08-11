@@ -7,6 +7,8 @@ import { CakeOption } from './entities/cake-option.entity';
 import { CakeOptionValue } from './entities/cake-option-value.entity';
 import { CakeImage } from './entities/cake-image.entity';
 import { Category } from '../categories/entities/category.entity';
+import { CakeOptionsService } from './cake-options.service';
+import { CakeOptionsController } from './cake-options.controller';
 
 @Module({
   imports: [
@@ -18,7 +20,7 @@ import { Category } from '../categories/entities/category.entity';
       Category,
     ]),
   ],
-  controllers: [CakesController],
-  providers: [CakesService],
+  controllers: [CakesController, CakeOptionsController],
+  providers: [CakesService, CakeOptionsService],
 })
 export class CakesModule {}
