@@ -9,12 +9,7 @@ import { CakeImage } from './entities/cake-image.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Cake,
-      CakeOption,
-      CakeOptionValue,
-      CakeImage,
-    ]),
+    TypeOrmModule.forFeature([Cake, CakeOption, CakeOptionValue, CakeImage]),
   ],
   controllers: [CakesController],
   providers: [CakesService],

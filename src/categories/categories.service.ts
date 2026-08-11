@@ -22,7 +22,7 @@ export class CategoriesService {
 
   findAll() {
     return this.categoryRepo.find({
-      order: { name: 'ASC' },
+      order: { id: 'ASC' },
     });
   }
 

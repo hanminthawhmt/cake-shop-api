@@ -17,6 +17,7 @@ export class CategoriesController {
   constructor(private categoriesService: CategoriesService) {}
 
   @Public()
+  @Get()
   listCategory() {
     return this.categoriesService.findAll();
   }
@@ -29,19 +30,19 @@ export class CategoriesController {
 
   @Public()
   @Get('/:id')
-  getCategoryById(@Param() id: string) {
+  getCategoryById(@Param('id') id: string) {
     return this.categoriesService.findOne(parseInt(id));
   }
 
   @Roles('owner')
   @Patch('/:id')
-  updateCategory(@Param() id: string, @Body() body: CreateCategoryDto) {
+  updateCategory(@Param('id') id: string, @Body() body: CreateCategoryDto) {
     return this.categoriesService.update(parseInt(id), body);
   }
 
   @Roles('owner')
   @Delete('/:id')
-  removeCategory(@Param() id: string) {
+  removeCategory(@Param('id') id: string) {
     return this.categoriesService.remove(parseInt(id));
   }
 }
