@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { Cake } from './cake.entity';
+import { Cake } from '../../cakes/entities/cake.entity';
 
 @Entity('categories')
 export class Category {

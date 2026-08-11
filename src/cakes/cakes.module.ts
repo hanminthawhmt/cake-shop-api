@@ -3,7 +3,6 @@ import { CakesController } from './cakes.controller';
 import { CakesService } from './cakes.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Cake } from './entities/cake.entity';
-import { Category } from './entities/category.entity';
 import { CakeOption } from './entities/cake-option.entity';
 import { CakeOptionValue } from './entities/cake-option-value.entity';
 import { CakeImage } from './entities/cake-image.entity';
@@ -12,7 +11,6 @@ import { CakeImage } from './entities/cake-image.entity';
   imports: [
     TypeOrmModule.forFeature([
       Cake,
-      Category,
       CakeOption,
       CakeOptionValue,
       CakeImage,

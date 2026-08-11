@@ -8,7 +8,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Category } from './category.entity';
+import { Category } from '../../categories/entities/category.entity';
 import { CakeImage } from './cake-image.entity';
 import { CakeOption } from './cake-option.entity';
 
