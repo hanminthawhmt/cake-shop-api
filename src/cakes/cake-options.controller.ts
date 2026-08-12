@@ -15,7 +15,7 @@ import { UpdateCakeOptionDto } from './dtos/update-cake-option.dto';
 import { CreateCakeOptionValueDto } from './dtos/create-cake-option-value.dto';
 import { UpdateCakeOptionValueDto } from './dtos/update-cake-option-value.dto';
 
-@Controller('/:cakeId/options')
+@Controller('/cakes/:cakeId/options')
 export class CakeOptionsController {
   constructor(private optionsService: CakeOptionsService) {}
 

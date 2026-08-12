@@ -28,8 +28,9 @@ export class CakesService {
   async findOne(id: number) {
     const cake = await this.cakeRepo.findOne({
       where: { id },
-      relations: { category: true },
+      relations: { category: true, images: true, options: { values: true } },
     });
+
     if (!cake) {
       throw new NotFoundException(`Cake with ID ${id} not found`);
     }

@@ -22,6 +22,9 @@ export class CakeImage {
   @Column()
   url: string;
 
+  @Column()
+  publicId: string;
+
   @Column({ default: 0 })
   displayOrder: number;
 }

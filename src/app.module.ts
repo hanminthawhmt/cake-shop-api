@@ -11,6 +11,7 @@ import { JwtAuthGuard } from './users/guards/jwt-auth.guard';
 import { RolesGuard } from './users/guards/roles.guard';
 import { CakesModule } from './cakes/cakes.module';
 import { CategoriesModule } from './categories/categories.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { CategoriesModule } from './categories/categories.module';
     UsersModule,
     CakesModule,
     CategoriesModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [

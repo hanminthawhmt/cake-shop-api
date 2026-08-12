@@ -9,6 +9,9 @@ import { CakeImage } from './entities/cake-image.entity';
 import { Category } from '../categories/entities/category.entity';
 import { CakeOptionsService } from './cake-options.service';
 import { CakeOptionsController } from './cake-options.controller';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+import { CakeImagesService } from './cake-images.service';
+import { CakeImagesController } from './cake-images.controller';
 
 @Module({
   imports: [
@@ -19,8 +22,9 @@ import { CakeOptionsController } from './cake-options.controller';
       CakeImage,
       Category,
     ]),
+    CloudinaryModule,
   ],
-  controllers: [CakesController, CakeOptionsController],
-  providers: [CakesService, CakeOptionsService],
+  controllers: [CakesController, CakeOptionsController, CakeImagesController],
+  providers: [CakesService, CakeOptionsService, CakeImagesService],
 })
 export class CakesModule {}
