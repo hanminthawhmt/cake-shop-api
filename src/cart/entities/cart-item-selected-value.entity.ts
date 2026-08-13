@@ -19,14 +19,13 @@ export class CartItemSelectedValue {
   @Column()
   cakeOptionValueId: number;
 
-  @ManyToOne(() => CartItem, (item) => item.itemSelectedValue)
+  @ManyToOne(() => CartItem, (item) => item.itemSelectedValue, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'cartItemId' })
   cartItem: CartItem;
 
-  @ManyToOne(
-    () => CakeOptionValue,
-    (optionValue) => optionValue.itemSelectedValue,
-  )
+  @ManyToOne(() => CakeOptionValue)
   @JoinColumn({ name: 'cakeOptionValueId' })
   value: CakeOptionValue;
 }
