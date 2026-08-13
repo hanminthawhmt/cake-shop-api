@@ -12,6 +12,7 @@ import { RolesGuard } from './users/guards/roles.guard';
 import { CakesModule } from './cakes/cakes.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     CakesModule,
     CategoriesModule,
     CloudinaryModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [
