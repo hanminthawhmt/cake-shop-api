@@ -26,5 +26,6 @@ import { CakeImagesController } from './cake-images.controller';
   ],
   controllers: [CakesController, CakeOptionsController, CakeImagesController],
   providers: [CakesService, CakeOptionsService, CakeImagesService],
+  exports: [CakesService],
 })
 export class CakesModule {}
