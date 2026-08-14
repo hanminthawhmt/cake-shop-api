@@ -13,6 +13,7 @@ import { CakesModule } from './cakes/cakes.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CartModule } from './cart/cart.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { CartModule } from './cart/cart.module';
     CategoriesModule,
     CloudinaryModule,
     CartModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [

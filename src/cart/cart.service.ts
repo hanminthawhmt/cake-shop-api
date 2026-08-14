@@ -22,6 +22,15 @@ export class CartService {
     private cakesService: CakesService,
   ) {}
 
+  async getCartEntities(userId: number): Promise<Cart> {
+    const cart = await this.getOrCreateCart(userId);
+    const items = await this.cartItemRepo.find({
+      where: { cartId: cart.id },
+      relations: { cake: true, itemSelectedValue: { value: true } },
+    });
+    return { ...cart, items };
+  }
+
   private async verifyItemBelongsToCart(cartId: number, itemId: number) {
     const item = await this.cartItemRepo.findOne({
       where: { id: itemId, cartId },
