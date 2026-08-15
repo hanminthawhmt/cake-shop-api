@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,10 +11,11 @@ import { OrderItem } from './entities/order-item.entity';
 import { OrderItemSelectedValue } from './entities/order-item-selected-value.entity';
 import { CartService } from '../cart/cart.service';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm/browser';
+import { DataSource } from 'typeorm';
 import { CreateOrderDto } from './dtos/create-order.dto';
 import { OrderStatus, PaymentStatus } from './enums/order.enum';
 import { CartItem } from '../cart/entities/cart-item.entity';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class OrdersService {
@@ -21,6 +23,7 @@ export class OrdersService {
     @InjectRepository(Order) private orderRepo: Repository<Order>,
     private cartService: CartService,
     @InjectDataSource() private datasource: DataSource,
+    private usersService: UsersService,
   ) {}
 
   private validatePickupDate(pickupDateInput: Date | string): void {
@@ -153,12 +156,28 @@ export class OrdersService {
   }
 
   async cancelOrder(userId: number, role: string, orderId: number) {
-    const order = await this.orderRepo.findOne({
-      where: { id: orderId },
-    });
+    const order = await this.orderRepo.findOne({ where: { id: orderId } });
 
     if (!order) {
       throw new NotFoundException(`Order with id ${orderId} not found`);
+    }
+
+    if (role !== 'owner') {
+      if (order.userId !== userId) {
+        throw new ForbiddenException('You can only cancel your own orders.');
+      }
+
+      const pickupDateTime = new Date(
+        `${order.pickupDate}T${order.pickupTime}`,
+      );
+      const cutoff = new Date();
+      cutoff.setHours(cutoff.getHours() + 2);
+
+      if (pickupDateTime.getTime() < cutoff.getTime()) {
+        throw new BadRequestException(
+          'Orders can only be cancelled at least 2 hours before pickup.',
+        );
+      }
     }
 
     if (order.status === OrderStatus.CANCELLED) {
@@ -173,5 +192,58 @@ export class OrdersService {
 
     order.status = OrderStatus.CANCELLED;
     return await this.orderRepo.save(order);
+  }
+
+  async generateBakingSlip(orderId: number): Promise<string> {
+    const order = await this.orderRepo.findOne({
+      where: { id: orderId },
+      relations: { items: { selectedValues: true } },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with id ${orderId} not found`);
+    }
+
+    const customer = await this.usersService.findOne(order.userId);
+
+    const itemsHtml = order.items
+      .map((item) => {
+        const optionsHtml = item.selectedValues
+          .map((sv) => `<div>${sv.label}</div>`)
+          .join('');
+        return `
+        <div class="item">
+          <div class="item-name">${item.cakeName} × ${item.quantity}</div>
+          ${optionsHtml}
+          ${item.notes ? `<div class="notes">Notes: ${item.notes}</div>` : ''}
+        </div>
+      `;
+      })
+      .join('<hr/>');
+    return `
+    <html>
+      <head>
+        <style>
+          body { font-family: monospace; width: 320px; margin: 0 auto; }
+          .center { text-align: center; }
+          hr { border-top: 1px dashed #000; }
+        </style>
+      </head>
+      <body>
+        <div class="center">
+          <h2>CAKE SHOP</h2>
+          <h3>BAKING SLIP</h3>
+        </div>
+        <hr/>
+        <div>Order #: ${order.id}</div>
+        <div>Pickup: ${order.pickupDate} ${order.pickupTime}</div>
+        <div>Customer: ${customer?.name ?? 'Unknown'}</div>
+        <hr/>
+        ${itemsHtml}
+        <hr/>
+        <div>Payment: ${order.paymentStatus.toUpperCase()}</div>
+      </body>
+    </html>
+  `;
   }
 }

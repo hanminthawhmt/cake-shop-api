@@ -6,6 +6,8 @@ import {
   Body,
   Param,
   ParseIntPipe,
+  Res,
+  Header,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CurrentUser } from '../users/decorators/current-user.decorator';
@@ -27,13 +29,11 @@ export class OrdersController {
   }
 
   @Get()
-  @Roles('owner', 'customer')
   getOrderList(@CurrentUser() user: { userId: number; role: string }) {
     return this.ordersService.findOrders(user.userId, user.role);
   }
 
   @Get('/:id')
-  @Roles('owner', 'customer')
   getOrderById(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: { userId: number; role: string },
@@ -66,5 +66,12 @@ export class OrdersController {
     @CurrentUser() user: { userId: number; role: string },
   ) {
     return this.ordersService.cancelOrder(user.userId, user.role, id);
+  }
+
+  @Get('/:id/baking-slip')
+  @Roles('owner')
+  @Header('Content-Type', 'text/html')
+  getBakingSlip(@Param('id', ParseIntPipe) id: number) {
+    return this.ordersService.generateBakingSlip(id);
   }
 }

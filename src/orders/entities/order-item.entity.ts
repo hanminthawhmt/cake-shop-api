@@ -24,7 +24,7 @@ export class OrderItem {
   cakeName: string; // Snapshot of cake name at the time of purchase
 
   @Column('int')
-  qunatity: number;
+  quantity: number;
 
   @Column({ type: 'text', nullable: true })
   notes: string | null;
