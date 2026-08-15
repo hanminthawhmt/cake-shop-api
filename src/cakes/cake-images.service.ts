@@ -14,7 +14,7 @@ export class CakeImagesService {
     private cakesService: CakesService,
   ) {}
 
-  private async verifyImageBelongsToCake(cakeId, imageId) {
+  private async verifyImageBelongsToCake(cakeId: number, imageId: number) {
     const image = await this.cakeImage.findOne({
       where: { id: imageId, cakeId: cakeId },
     });
