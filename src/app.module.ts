@@ -15,6 +15,8 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
 import { RoomsModule } from './rooms/rooms.module';
+import { EmailModule } from './email/email.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -50,6 +52,10 @@ import { RoomsModule } from './rooms/rooms.module';
     CartModule,
     OrdersModule,
     RoomsModule,
+    EmailModule,
+    EventEmitterModule.forRoot({
+      global: true,
+    }),
   ],
   controllers: [AppController],
   providers: [
