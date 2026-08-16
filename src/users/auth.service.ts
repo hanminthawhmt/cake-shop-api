@@ -7,12 +7,15 @@ import {
 import { UsersService } from './users.service';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UserRegisteredEvent } from './events/user-registered.event';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async signup(name: string, email: string, password: string) {
@@ -25,6 +28,11 @@ export class AuthService {
 
     const payload = { sub: user.id, email: user.email, role: user.role };
     const token = this.jwtService.sign(payload);
+    this.eventEmitter.emit(
+      'user.registered',
+      new UserRegisteredEvent(user.email, user.name),
+    );
+
     return {
       message: 'User registered successfully',
       user: { id: user.id, name: user.name, email: user.email },
