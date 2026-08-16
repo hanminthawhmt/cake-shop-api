@@ -10,11 +10,13 @@ import { RoomImagesService } from './room-images.service';
 import { RoomImagesController } from './room-images.controller';
 import { ReservationsController } from './reservations.controller';
 import { ReservationsService } from './reservations.service';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Room, RoomReservation, RoomImage]),
     CloudinaryModule,
+    UsersModule
   ],
   providers: [RoomsService, RoomImagesService, ReservationsService],
   controllers: [RoomsController, RoomImagesController, ReservationsController],

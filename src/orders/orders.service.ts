@@ -16,6 +16,10 @@ import { CreateOrderDto } from './dtos/create-order.dto';
 import { OrderStatus, PaymentStatus } from './enums/order.enum';
 import { CartItem } from '../cart/entities/cart-item.entity';
 import { UsersService } from '../users/users.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { OrderCreatedEvent } from './events/order-created.event';
+import { OrderStatusUpdatedEvent } from './events/order-status-updated.event';
+import { OrderCancelledEvent } from './events/order-cancelled.event';
 
 @Injectable()
 export class OrdersService {
@@ -24,6 +28,7 @@ export class OrdersService {
     private cartService: CartService,
     @InjectDataSource() private datasource: DataSource,
     private usersService: UsersService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   private validatePickupDate(pickupDateInput: Date | string): void {
@@ -53,7 +58,10 @@ export class OrdersService {
     if (cart.items.length === 0) {
       throw new BadRequestException('Cannot check out an empty cart.');
     }
-    return this.datasource.transaction(async (manager) => {
+
+    const customer = await this.usersService.findOne(userId);
+
+    const savedOrder = await this.datasource.transaction(async (manager) => {
       const order = manager.create(Order, {
         userId,
         status: OrderStatus.CONFIRMED,
@@ -104,6 +112,23 @@ export class OrdersService {
 
       return savedOrder;
     });
+
+    this.eventEmitter.emit(
+      'order.created',
+      new OrderCreatedEvent(
+        savedOrder.id,
+        customer!.email,
+        customer!.name,
+        savedOrder.pickupDate as unknown as string,
+        savedOrder.pickupTime,
+        savedOrder.totalPrice,
+        cart!.items.map((i) => ({
+          cakeName: i.cake.name,
+          quantity: i.quantity,
+        })),
+      ),
+    );
+    return savedOrder;
   }
 
   async findOrders(userId: number, role: string) {
@@ -143,7 +168,18 @@ export class OrdersService {
       throw new NotFoundException(`Order with id ${orderId} not found`);
     }
     order.status = status;
-    return await this.orderRepo.save(order);
+    const savedOrder = await this.orderRepo.save(order);
+    const customer = await this.usersService.findOne(order.userId);
+    this.eventEmitter.emit(
+      'order.status_updated',
+      new OrderStatusUpdatedEvent(
+        savedOrder.id,
+        customer!.email,
+        customer!.name,
+        savedOrder.status,
+      ),
+    );
+    return savedOrder;
   }
 
   async updatePaymentStatus(orderId: number, paymentStatus: PaymentStatus) {
@@ -191,7 +227,17 @@ export class OrdersService {
     }
 
     order.status = OrderStatus.CANCELLED;
-    return await this.orderRepo.save(order);
+    const cancelledOrder = await this.orderRepo.save(order);
+    const customer = await this.usersService.findOne(order.userId);
+    this.eventEmitter.emit(
+      'order.cancelled',
+      new OrderCancelledEvent(
+        cancelledOrder.id,
+        customer!.email,
+        customer!.name,
+      ),
+    );
+    return cancelledOrder;
   }
 
   async generateBakingSlip(orderId: number): Promise<string> {

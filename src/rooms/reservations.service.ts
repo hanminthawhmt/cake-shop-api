@@ -11,13 +11,19 @@ import { QueryFailedError, Repository } from 'typeorm';
 import { CreateReservationDto } from './dtos/create-reservation.dto';
 import { RoomsService } from './rooms.service';
 import { ReservationStatus } from './enums/room.enum';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ReservationCreatedEvent } from './events/reservation-created.event';
+import { UsersService } from '../users/users.service';
+import { ReservationCancelledEvent } from './events/reservation-cancelled.event';
 
 @Injectable()
 export class ReservationsService {
   constructor(
     @InjectRepository(RoomReservation)
     private reservationsRepo: Repository<RoomReservation>,
+    private usersService: UsersService,
     private roomsService: RoomsService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async createReservation(
@@ -52,7 +58,20 @@ export class ReservationsService {
     });
 
     try {
-      return await this.reservationsRepo.save(reservation);
+      const savedReservation = await this.reservationsRepo.save(reservation);
+      const customer = await this.usersService.findOne(userId);
+      this.eventEmitter.emit(
+        'reservation.created',
+        new ReservationCreatedEvent(
+          savedReservation.id,
+          customer!.email,
+          customer!.name,
+          room.name,
+          dto.date,
+          dto.timeSlot,
+        ),
+      );
+      return savedReservation;
     } catch (error) {
       if (
         error instanceof QueryFailedError &&
@@ -127,6 +146,18 @@ export class ReservationsService {
     }
 
     reservation.status = ReservationStatus.CANCELLED;
-    return this.reservationsRepo.save(reservation);
+    const savedReservation = await this.reservationsRepo.save(reservation);
+
+    const customer = await this.usersService.findOne(reservation.userId);
+    this.eventEmitter.emit(
+      'reservation.cancelled',
+      new ReservationCancelledEvent(
+        savedReservation.id,
+        customer!.email,
+        customer!.name,
+      ),
+    );
+
+    return savedReservation;
   }
 }
