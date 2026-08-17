@@ -17,6 +17,7 @@ import { OrdersModule } from './orders/orders.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { EmailModule } from './email/email.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     EventEmitterModule.forRoot({
       global: true,
     }),
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [
