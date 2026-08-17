@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Res,
   Header,
+  Query,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CurrentUser } from '../users/decorators/current-user.decorator';
@@ -15,6 +16,7 @@ import { CreateOrderDto } from './dtos/create-order.dto';
 import { Roles } from '../users/decorators/roles.decorator';
 import { UpdateOrderStatusDto } from './dtos/update-order-status.dto';
 import { UpdatePaymentStatusDto } from './dtos/update-payment-status.dto';
+import { FindOrdersDto } from './dtos/find-orders.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -29,9 +31,12 @@ export class OrdersController {
   }
 
   @Get()
-  getOrderList(@CurrentUser() user: { userId: number; role: string }) {
-    return this.ordersService.findOrders(user.userId, user.role);
-  }
+  getOrderList(
+  @CurrentUser() user: { userId: number; role: string },
+  @Query() query: FindOrdersDto,
+) {
+  return this.ordersService.findOrders(user.userId, user.role, query);
+}
 
   @Get('/:id')
   getOrderById(

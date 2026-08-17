@@ -4,7 +4,7 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
@@ -20,6 +20,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { OrderCreatedEvent } from './events/order-created.event';
 import { OrderStatusUpdatedEvent } from './events/order-status-updated.event';
 import { OrderCancelledEvent } from './events/order-cancelled.event';
+import { FindOrdersDto } from './dtos/find-orders.dto';
 
 @Injectable()
 export class OrdersService {
@@ -131,14 +132,18 @@ export class OrdersService {
     return savedOrder;
   }
 
-  async findOrders(userId: number, role: string) {
-    if (role === 'owner') {
-      return await this.orderRepo.find({
-        order: { createdAt: 'DESC' },
-      });
+  async findOrders(userId: number, role: string, filters: FindOrdersDto) {
+    const where: FindOptionsWhere<Order> = role === 'owner' ? {} : { userId };
+
+    if (filters.status) {
+      where.status = filters.status;
     }
-    return await this.orderRepo.find({
-      where: { userId },
+    if (filters.date) {
+      where.pickupDate = new Date(filters.date);
+    }
+
+    return this.orderRepo.find({
+      where,
       order: { createdAt: 'DESC' },
     });
   }
