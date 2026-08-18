@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { User, AuthProvider } from './entities/user.entity';
 import { UserProfile } from './entities/user-profile.entity';
 
 @Injectable()
@@ -14,6 +14,16 @@ export class UsersService {
   create(name: string, email: string, password: string) {
     const user = this.usersRepo.create({ name, email, password });
     return this.usersRepo.save(user);
+  }
+
+  createGoogleUser(name: string, email: string, authProvider: AuthProvider) {
+    const userData: any = { name, email, password: null, authProvider };
+    const user = this.usersRepo.create(userData);
+    return this.usersRepo.save(user);
+  }
+
+  updateAuthProvider(id: number, authProvider: AuthProvider) {
+    return this.usersRepo.update(id, { authProvider });
   }
 
   findOne(id: number) {

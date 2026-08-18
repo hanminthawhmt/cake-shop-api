@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserRegisteredEvent } from './events/user-registered.event';
+import { AuthProvider } from './entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -84,6 +85,47 @@ export class AuthService {
       password: hashedNewPassword,
     });
     return { message: 'Password updated successfully' };
+  }
+
+  async googleLogin(googleUser: any) {
+    let user = await this.usersService.find(googleUser.email);
+
+    if (!user) {
+      // Create new user for Google OAuth
+      const newUser = await this.usersService.createGoogleUser(
+        googleUser.name,
+        googleUser.email,
+        AuthProvider.GOOGLE,
+      );
+
+      if (!newUser) {
+        throw new Error('Failed to create user');
+      }
+
+      user = newUser as any;
+
+      this.eventEmitter.emit(
+        'user.registered',
+        new UserRegisteredEvent(user!.email, user!.name),
+      );
+    } else if (user.authProvider === AuthProvider.LOCAL) {
+      // If user exists with local auth, update their auth provider
+      await this.usersService.updateAuthProvider(user.id, AuthProvider.GOOGLE);
+      user.authProvider = AuthProvider.GOOGLE;
+    }
+
+    if (!user) {
+      throw new Error('User not found or created');
+    }
+
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    const token = this.jwtService.sign(payload);
+
+    return {
+      message: 'User signed in successfully via Google',
+      user: { id: user.id, name: user.name, email: user.email },
+      token: token,
+    };
   }
 
   signout() {}
