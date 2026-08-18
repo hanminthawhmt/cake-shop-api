@@ -9,16 +9,24 @@ export class ReservationCreatedEmailListener {
 
   @OnEvent('reservation.created')
   async handleReservationCreated(event: ReservationCreatedEvent) {
-    const html = `
+    try {
+      const html = `
       <h2>Reservation Confirmed!</h2>
       <p>Hi ${event.customerName}, your room reservation is confirmed.</p>
       <p>Room: ${event.roomName}</p>
       <p>Date: ${event.date} at ${event.timeSlot}</p>
     `;
-    await this.emailService.sendEmail(
-      event.customerEmail,
-      `Reservation Confirmation #${event.reservationId}`,
-      html,
-    );
+      await this.emailService.sendEmail(
+        event.customerEmail,
+        `Reservation Confirmation #${event.reservationId}`,
+        html,
+      );
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(
+        `Failed to send reservation confirmation email for reservation #${event.reservationId}:`,
+        message,
+      );
+    }
   }
 }

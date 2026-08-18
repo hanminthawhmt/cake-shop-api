@@ -9,10 +9,11 @@ export class OrderEmailListener {
 
   @OnEvent('order.created')
   async handleCreatedOrder(event: OrderCreatedEvent) {
-    const itemsHtml = await event.items
-      .map((i) => `<li>${i.cakeName} × ${i.quantity}</li>`)
-      .join('');
-    const html = `
+    try {
+      const itemsHtml = await event.items
+        .map((i) => `<li>${i.cakeName} × ${i.quantity}</li>`)
+        .join('');
+      const html = `
       <h2>Order Confirmed!</h2>
       <p>Hi ${event.customerName}, thanks for your order.</p>
       <p><strong>Order #${event.orderId}</strong></p>
@@ -20,10 +21,17 @@ export class OrderEmailListener {
       <ul>${itemsHtml}</ul>
       <p><strong>Total: ฿${event.totalPrice}</strong></p>
     `;
-    await this.emailService.sendEmail(
-      event.customerEmail,
-      `Order Confirmation #${event.orderId}`,
-      html,
-    );
+      await this.emailService.sendEmail(
+        event.customerEmail,
+        `Order Confirmation #${event.orderId}`,
+        html,
+      );
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(
+        `Failed to send order confirmation email for order #${event.orderId}:`,
+        message,
+      );
+    }
   }
 }

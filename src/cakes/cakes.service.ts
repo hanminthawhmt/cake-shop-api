@@ -21,6 +21,7 @@ export class CakesService {
 
   findAll() {
     return this.cakeRepo.find({
+      relations: { images: true },
       order: { id: 'ASC' },
     });
   }

@@ -9,14 +9,22 @@ export class UserRegisteredEmailListener {
 
   @OnEvent('user.registered')
   async handleUserRegistered(event: UserRegisteredEvent) {
-    const html = `
+    try {
+      const html = `
       <h2>Welcome to Cake Shop!</h2>
       <p>Hi ${event.name}, thanks for signing up.</p>
     `;
-    await this.emailService.sendEmail(
-      event.email,
-      'Welcome to Cake Shop',
-      html,
-    );
+      await this.emailService.sendEmail(
+        event.email,
+        'Welcome to Cake Shop',
+        html,
+      );
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(
+        `Failed to send user registration email for user ${event.email}:`,
+        message,
+      );
+    }
   }
 }

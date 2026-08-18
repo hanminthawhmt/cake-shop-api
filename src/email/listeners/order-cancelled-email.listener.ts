@@ -9,14 +9,22 @@ export class OrderCancelledEmailListener {
 
   @OnEvent('order.cancelled')
   async handleOrderCancelled(event: OrderCancelledEvent) {
-    const html = `
+    try {
+      const html = `
       <h2>Order Cancelled</h2>
       <p>Hi ${event.customerName}, your order #${event.orderId} has been cancelled.</p>
     `;
-    await this.emailService.sendEmail(
-      event.customerEmail,
-      `Order #${event.orderId} Cancelled`,
-      html,
-    );
+      await this.emailService.sendEmail(
+        event.customerEmail,
+        `Order #${event.orderId} Cancelled`,
+        html,
+      );
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(
+        `Failed to send order cancellation email for order #${event.orderId}:`,
+        message,
+      );
+    }
   }
 }
