@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { EmailService } from '../email.service';
 import { UserRegisteredEvent } from '../../users/events/user-registered.event';
+import {
+  generateEmailTemplate,
+  bodyParagraph,
+} from '../templates/base-email.template';
 
 @Injectable()
 export class UserRegisteredEmailListener {
@@ -10,13 +14,22 @@ export class UserRegisteredEmailListener {
   @OnEvent('user.registered')
   async handleUserRegistered(event: UserRegisteredEvent) {
     try {
-      const html = `
-      <h2>Welcome to Cake Shop!</h2>
-      <p>Hi ${event.name}, thanks for signing up.</p>
-    `;
+      const body = `
+        ${bodyParagraph(`Welcome to Petal & Cocoa, ${event.name}! We're thrilled to have you join our community.`)}
+        ${bodyParagraph('Your account is now active and ready to explore our artisan cakes, pastries, and cozy lounge space.')}
+        ${bodyParagraph('Start browsing our collection and place your first order to enjoy a 10% discount on your next visit!')}
+      `;
+
+      const html = generateEmailTemplate({
+        title: 'Welcome to Petal & Cocoa!',
+        body,
+        buttonText: 'Browse Our Menu',
+        buttonUrl: 'https://petalcocoa.com/menu',
+      });
+
       await this.emailService.sendEmail(
         event.email,
-        'Welcome to Cake Shop',
+        'Welcome to Petal & Cocoa',
         html,
       );
     } catch (error: unknown) {

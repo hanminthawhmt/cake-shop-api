@@ -2,6 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { EmailService } from '../email.service';
 import { ReservationCancelledEvent } from '../../rooms/events/reservation-cancelled.event';
+import {
+  generateEmailTemplate,
+  bodyParagraph,
+  detailsBox,
+  listItem,
+} from '../templates/base-email.template';
 
 @Injectable()
 export class ReservationCancelledEmailListener {
@@ -10,10 +16,23 @@ export class ReservationCancelledEmailListener {
   @OnEvent('reservation.cancelled')
   async handleReservationCancelled(event: ReservationCancelledEvent) {
     try {
-      const html = `
-      <h2>Reservation Cancelled</h2>
-      <p>Hi ${event.customerName}, your reservation #${event.reservationId} has been cancelled.</p>
-    `;
+      const body = `
+        ${bodyParagraph(`Hi ${event.customerName}, we wanted to confirm that your reservation has been cancelled.`)}
+        
+        ${detailsBox(`
+          ${listItem('Reservation Number:', `#${event.reservationId}`)}
+        `)}
+
+        ${bodyParagraph('We\'d love to have you visit us another time! Feel free to make a new reservation whenever you\'re ready.')}
+      `;
+
+      const html = generateEmailTemplate({
+        title: 'Reservation Cancelled',
+        body,
+        buttonText: 'Make a New Reservation',
+        buttonUrl: 'https://petalcocoa.com/reserve',
+      });
+
       await this.emailService.sendEmail(
         event.customerEmail,
         `Reservation #${event.reservationId} Cancelled`,
