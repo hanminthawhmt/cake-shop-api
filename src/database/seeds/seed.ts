@@ -49,7 +49,10 @@ async function seed() {
     console.log('👥 Seeding users...');
     const userRepo = dataSource.getRepository(User);
     const userCount = 50;
-    const userSeeds = UserFactory.createCustomers(userCount);
+    const userSeeds = [
+      UserFactory.createOwner(),
+      ...UserFactory.createCustomers(userCount),
+    ];
     
     // Hash passwords for all users
     const usersWithHashedPasswords = await Promise.all(
