@@ -30,6 +30,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
         return {
           type: 'postgres',
           url: config.get<string>('DATABASE_URL'),
+          ssl: true,
           synchronize: true,
           autoLoadEntities: true,
         };
