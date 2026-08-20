@@ -90,9 +90,10 @@ Public catalog routes include `GET /cakes`, `GET /cakes/:id`, and `GET /categori
 git clone https://github.com/hanminthawhmt/cake-shop-api.git
 cd cake-shop-api
 npm install
+cp .env.example .env
 ```
 
-This repository currently does not include a committed `.env.example`. Create `.env` manually using the variables below, or add an environment template locally without real values.
+The committed `.env.example` contains placeholders only. Replace them with your local database and service credentials in `.env`.
 
 ### Environment variables
 
@@ -114,7 +115,7 @@ FRONTEND_URL=http://localhost:5173
 ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3001
 ```
 
-`ALLOWED_ORIGINS` is a comma-separated list. Never commit `.env` files or real credentials. For production, use the Render environment settings and a strong unique `JWT_SECRET`.
+`ALLOWED_ORIGINS` is a comma-separated list. The complete placeholder list is available in [.env.example](.env.example). Never commit `.env` files or real credentials. For production, use the Render environment settings and a strong unique `JWT_SECRET`.
 
 ### Start the API
 
@@ -132,7 +133,16 @@ The seed command creates a realistic demo dataset for development and analytics 
 npm run seed
 ```
 
-The seed is destructive: it clears existing application data before inserting fresh records. Do not run it against a production database. Seeded customer accounts use the password `password123`; use them only in local/demo environments. See [SEEDING_GUIDE.md](SEEDING_GUIDE.md) for the generated data model and customization details.
+The seed is destructive: it clears existing application data before inserting fresh records. Do not run it against a production database without an intentional backup and explicit approval.
+
+After seeding, use these demo credentials:
+
+| Account | Email | Password | Role |
+| --- | --- | --- | --- |
+| Owner | `owner@cakeshop.com` | `password123` | Owner |
+| Generated customers | Generated during seeding | `password123` | Customer |
+
+All passwords are stored as bcrypt hashes. See [SEEDING_GUIDE.md](SEEDING_GUIDE.md) for the generated data model and customization details.
 
 ## Scripts
 
