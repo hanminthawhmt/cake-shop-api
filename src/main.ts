@@ -6,8 +6,11 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  app.enableCors({
+    origin: ['http://localhost:3001','http://localhost:5173'],
+    credentials: true,
+  });
 
-  // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Cake Shop API')
     .setDescription('API documentation for the Cake Shop System')
@@ -16,6 +19,10 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+
+  app.getHttpAdapter().get('/docs-json', (_req, res) => {
+    res.json(document);
+  });
 
   SwaggerModule.setup('api', app, document, {
     swaggerOptions: {
